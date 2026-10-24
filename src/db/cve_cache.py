@@ -7,6 +7,8 @@ import os
 import sqlite3
 from typing import Any
 
+from src.db.versions import version_in_range
+
 logger = logging.getLogger(__name__)
 
 BUILTIN_CVE_DB: list[dict[str, Any]] = [
@@ -124,17 +126,19 @@ class CVECache:
 
     def lookup(self, product: str, version: str | None = None) -> list[dict[str, Any]]:
         conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM cve_cache WHERE LOWER(product) = LOWER(?)",
+            (product,),
+        ).fetchall()
+        entries = [dict(r) for r in rows]
         if version:
-            rows = conn.execute(
-                "SELECT * FROM cve_cache WHERE LOWER(product) = LOWER(?) AND (? >= version_start OR version_start = '') AND (? <= version_end OR version_end = '')",
-                (product, version, version),
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                "SELECT * FROM cve_cache WHERE LOWER(product) = LOWER(?)",
-                (product,),
-            ).fetchall()
-        return [dict(r) for r in rows]
+            # Filter in Python: SQL compares versions as text ("2.4.9" > "2.4.55").
+            entries = [
+                e
+                for e in entries
+                if version_in_range(version, e.get("version_start", ""), e.get("version_end", ""))
+            ]
+        return entries
 
     def lookup_by_port(self, port: int) -> list[dict[str, Any]]:
         port_product_map = {

@@ -10,6 +10,7 @@ from urllib.parse import quote
 import httpx
 
 from src.db.cve_cache import CVECache
+from src.db.versions import parse_version, version_in_range
 from src.scanners.base import BaseScanner, ScanResult
 
 logger = logging.getLogger(__name__)
@@ -17,27 +18,9 @@ logger = logging.getLogger(__name__)
 CIRCL_API_BASE = "https://cve.circl.lu/api/cve"
 
 
-def _parse_version(version_str: str | None) -> tuple[int, ...]:
-    if not version_str:
-        return (0,)
-    parts = []
-    for part in version_str.replace("p", ".").split("."):
-        try:
-            parts.append(int(part))
-        except ValueError:
-            parts.append(0)
-    return tuple(parts)
-
-
-def _version_in_range(
-    version: str | None, version_start: str, version_end: str
-) -> bool:
-    if not version:
-        return True
-    v = _parse_version(version)
-    vs = _parse_version(version_start) if version_start else (0,)
-    ve = _parse_version(version_end) if version_end else (999999,)
-    return vs <= v <= ve
+# Kept under the old private names for backwards compatibility.
+_parse_version = parse_version
+_version_in_range = version_in_range
 
 
 class CVEChecker(BaseScanner):

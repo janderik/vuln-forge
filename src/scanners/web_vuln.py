@@ -217,7 +217,7 @@ class WebVulnScanner(BaseScanner):
                                 "type": "reflected_xss",
                                 "severity": "high",
                                 "payload": payload[:80],
-                                "parameter": list(params.keys())[0],
+                                "parameter": next(iter(params)),
                                 "detail": "Reflected XSS detected with parameter injection",
                                 "evidence": indicator.pattern[:60],
                             })

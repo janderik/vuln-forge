@@ -66,8 +66,10 @@ class TestServiceDetector:
 
     def test_parse_ssh_banner(self) -> None:
         info = parse_banner("SSH-2.0-OpenSSH_8.9p1 Ubuntu-3")
-        assert "OpenSSH" in info.get("product", "") or info.get("product") == "OpenSSH"
-        assert info["version"] == "2.0"
+        # The product version is what CVE matching needs; 2.0 is the protocol.
+        assert info["product"] == "OpenSSH"
+        assert info["version"] == "8.9p1"
+        assert info["protocol"] == "2.0"
 
     def test_parse_iis_banner(self) -> None:
         info = parse_banner("Microsoft-IIS/10.0")
@@ -113,6 +115,17 @@ class TestWebVulnScanner:
 
 
 class TestCVEChecker:
+    def test_lookup_compares_versions_numerically(self) -> None:
+        # As text "2.4.9" > "2.4.55"; numerically 2.4.9 is inside 2.4.0-2.4.55.
+        results = CVEChecker().cache.lookup("Apache", "2.4.9")
+        assert any(r["id"] == "CVE-2023-25690" for r in results)
+
+    @pytest.mark.asyncio
+    async def test_ssh_banner_matches_openssh_cve(self) -> None:
+        service = {"port": 22, **parse_banner("SSH-2.0-OpenSSH_8.9p1 Ubuntu-3")}
+        result = await CVEChecker().scan("127.0.0.1", services=[service])
+        assert "CVE-2024-6387" in {f["cve_id"] for f in result.findings}
+
     def test_local_db_lookup_apache(self) -> None:
         checker = CVEChecker()
         results = checker.cache.lookup("Apache", "2.4.49")

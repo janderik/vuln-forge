@@ -43,10 +43,15 @@ def parse_banner(banner: str, service_hint: str = "") -> dict[str, str]:
     info: dict[str, str] = {"banner": banner.strip()[:500]}
     b = banner
 
-    m = re.search(r"SSH-(\d\.\d)[-\s]+(.*?)(?:\s|$)", b)
+    m = re.search(r"SSH-(\d\.\d+)-(\S+)", b)
     if m:
-        info["version"] = m.group(1)
-        info["product"] = m.group(2).strip() or "OpenSSH"
+        # "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3": 2.0 is the protocol, not the product.
+        info["protocol"] = m.group(1)
+        software = m.group(2)
+        product, _, version = software.partition("_")
+        info["product"] = product or "OpenSSH"
+        if version:
+            info["version"] = version
         return info
 
     m = re.search(r"(Apache)/([\d.]+)", b, re.IGNORECASE)
@@ -64,7 +69,7 @@ def parse_banner(banner: str, service_hint: str = "") -> dict[str, str]:
     m = re.search(r"Microsoft-IIS/([\d.]+)", b, re.IGNORECASE)
     if m:
         info["product"] = "IIS"
-        info["version"] = m.group(2)
+        info["version"] = m.group(1)
         return info
 
     m = re.search(r"Server:\s*(.*)", b, re.IGNORECASE)
@@ -121,10 +126,8 @@ class ServiceDetector(BaseScanner):
                     if not banner_bytes:
                         return None
 
-                    try:
-                        banner = banner_bytes.decode("utf-8", errors="replace")
-                    except Exception:
-                        banner = banner_bytes.decode("latin-1", errors="replace")
+                    # errors="replace" never raises, so no fallback is needed.
+                    banner = banner_bytes.decode("utf-8", errors="replace")
 
                     parsed = parse_banner(banner)
                     return {

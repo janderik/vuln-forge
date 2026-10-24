@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-          pip install ruff mypy
+          pip install ruff==0.17.2 mypy==2.4.0 pytest-timeout
 
       - name: Lint with ruff
         run: ruff check src/ tests/

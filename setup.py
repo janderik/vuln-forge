@@ -13,14 +13,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="VulnForge Team",
-    url="https://github.com/vulnforge/vulnforge",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    url="https://github.com/janderik/vuln-forge",
+    # The code imports itself as "src.*", so the package is installed under that name.
+    packages=find_packages(include=["src", "src.*"]),
     include_package_data=True,
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "vulnforge=cli:main",
+            "vulnforge=src.cli:cli",
         ],
     },
     python_requires=">=3.11",

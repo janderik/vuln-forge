@@ -1,6 +1,6 @@
 # VulnForge 🔍
 
-[![CI](https://github.com/vulnforge/vulnforge/actions/workflows/ci.yml/badge.svg)](https://github.com/vulnforge/vulnforge/actions/workflows/ci.yml)
+[![CI](https://github.com/janderik/vuln-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/janderik/vuln-forge/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Security](https://img.shields.io/badge/security-scanner-red.svg)]()
@@ -44,8 +44,8 @@ vuln-forge/
 
 ```bash
 # From source
-git clone https://github.com/vulnforge/vulnforge.git
-cd vulnforge
+git clone https://github.com/janderik/vuln-forge.git
+cd vuln-forge
 pip install -r requirements.txt
 pip install -e .
 
