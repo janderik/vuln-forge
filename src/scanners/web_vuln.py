@@ -13,22 +13,22 @@ import httpx
 from src.scanners.base import BaseScanner, ScanResult
 
 XSS_INDICATORS = [
-    re.compile(r"<script>alert", re.I),
-    re.compile(r"<img\s+src\s*=\s*x\s+onerror\s*=", re.I),
-    re.compile(r"<svg\s+onload\s*=", re.I),
+    re.compile(r"<script>alert", re.IGNORECASE),
+    re.compile(r"<img\s+src\s*=\s*x\s+onerror\s*=", re.IGNORECASE),
+    re.compile(r"<svg\s+onload\s*=", re.IGNORECASE),
 ]
 
 SQLI_INDICATORS = [
-    re.compile(r"SQL syntax.*MySQL", re.I),
-    re.compile(r"Warning.*mysql_.*", re.I),
-    re.compile(r"Unclosed quotation mark", re.I),
-    re.compile(r"Microsoft OLE DB.*SQL Server", re.I),
-    re.compile(r"PostgreSQL.*ERROR", re.I),
-    re.compile(r"ORA-[0-9]{5}", re.I),
-    re.compile(r"SQLite.*Exception", re.I),
-    re.compile(r"Division by zero.*SQL", re.I),
-    re.compile(r"you have an error in your sql", re.I),
-    re.compile(r"unknown column", re.I),
+    re.compile(r"SQL syntax.*MySQL", re.IGNORECASE),
+    re.compile(r"Warning.*mysql_.*", re.IGNORECASE),
+    re.compile(r"Unclosed quotation mark", re.IGNORECASE),
+    re.compile(r"Microsoft OLE DB.*SQL Server", re.IGNORECASE),
+    re.compile(r"PostgreSQL.*ERROR", re.IGNORECASE),
+    re.compile(r"ORA-[0-9]{5}", re.IGNORECASE),
+    re.compile(r"SQLite.*Exception", re.IGNORECASE),
+    re.compile(r"Division by zero.*SQL", re.IGNORECASE),
+    re.compile(r"you have an error in your sql", re.IGNORECASE),
+    re.compile(r"unknown column", re.IGNORECASE),
 ]
 
 SQLI_PAYLOADS = [
@@ -217,8 +217,8 @@ class WebVulnScanner(BaseScanner):
                                 "type": "reflected_xss",
                                 "severity": "high",
                                 "payload": payload[:80],
-                                "parameter": list(params.keys())[0],
-                                "detail": f"Reflected XSS detected with parameter injection",
+                                "parameter": next(iter(params)),
+                                "detail": "Reflected XSS detected with parameter injection",
                                 "evidence": indicator.pattern[:60],
                             })
                             return

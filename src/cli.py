@@ -6,8 +6,7 @@ import asyncio
 import logging
 import os
 import sys
-from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import click
 from rich.console import Console
@@ -214,7 +213,7 @@ def list_payloads() -> None:
         console.print("[bold]Loaded XSS Payloads:[/]")
         for i, p in enumerate(payloads, 1):
             console.print(f"  {i:>2}. {p}")
-    except Exception as e:
+    except (OSError, ValueError) as e:
         console.print(f"[red]Error loading payloads: {e}[/]")
 
 

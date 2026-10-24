@@ -90,3 +90,30 @@ class TestReportGenerator:
         assert "low" in html
         assert "info" in html
         assert "5" in html  # 5 total findings
+
+
+def test_html_escapes_untrusted_finding_data() -> None:
+    """Findings carry data from the scanned target and must never become markup."""
+    payload = '<script>alert("xss")</script>'
+    results = [
+        ScanResult(
+            target='evil.test"><img src=x onerror=alert(1)>',
+            scanner_name="web_scanner",
+            severity="high",
+            findings=[
+                {
+                    "type": "reflected_xss",
+                    "severity": "high",
+                    "detail": f"Payload reflected: {payload}",
+                    "cve_id": 'javascript:alert(1)"',
+                },
+                {"type": "x", "severity": 'high" onclick="alert(1)', "detail": "ok"},
+            ],
+        )
+    ]
+    html_out = ReportGenerator().generate(results, output_format="html")
+    assert "<script>alert" not in html_out
+    assert "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;" in html_out
+    assert "<img src=x" not in html_out
+    assert 'href="javascript:' not in html_out
+    assert 'onclick="alert(1)' not in html_out
