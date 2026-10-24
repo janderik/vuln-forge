@@ -6,8 +6,7 @@ import asyncio
 import logging
 import os
 import sys
-from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import click
 from rich.console import Console

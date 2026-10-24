@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import random
-import struct
-import time
 from typing import Any
 
 from src.scanners.base import BaseScanner, ScanResult
@@ -93,12 +91,7 @@ class PortScanner(BaseScanner):
                     writer.close()
                     await writer.wait_closed()
                     return port
-                except (
-                    asyncio.TimeoutError,
-                    ConnectionRefusedError,
-                    ConnectionError,
-                    OSError,
-                ):
+                except (TimeoutError, ConnectionRefusedError, ConnectionError, OSError):
                     return None
 
         tasks = [_try_port(p) for p in ports]

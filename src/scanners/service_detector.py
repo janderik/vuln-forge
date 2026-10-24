@@ -24,18 +24,18 @@ SERVICE_PROBES: dict[int, bytes] = {
 }
 
 SERVICE_BANNER_PATTERNS: dict[str, list[re.Pattern]] = {
-    "HTTP": [re.compile(r"HTTP/\d\.\d", re.I)],
-    "SSH": [re.compile(r"SSH-\d\.\d", re.I)],
-    "FTP": [re.compile(r"220.*FTP", re.I)],
-    "SMTP": [re.compile(r"220.*SMTP", re.I)],
-    "MySQL": [re.compile(r"mysql", re.I)],
-    "PostgreSQL": [re.compile(r"PostgreSQL", re.I)],
-    "Redis": [re.compile(r"redis", re.I), re.compile(r"\+PONG", re.I)],
-    "OpenSSH": [re.compile(r"OpenSSH", re.I)],
-    "Apache": [re.compile(r"Apache", re.I)],
-    "Nginx": [re.compile(r"nginx", re.I)],
-    "IIS": [re.compile(r"Microsoft-IIS", re.I)],
-    "nginx": [re.compile(r"nginx", re.I)],
+    "HTTP": [re.compile(r"HTTP/\d\.\d", re.IGNORECASE)],
+    "SSH": [re.compile(r"SSH-\d\.\d", re.IGNORECASE)],
+    "FTP": [re.compile(r"220.*FTP", re.IGNORECASE)],
+    "SMTP": [re.compile(r"220.*SMTP", re.IGNORECASE)],
+    "MySQL": [re.compile(r"mysql", re.IGNORECASE)],
+    "PostgreSQL": [re.compile(r"PostgreSQL", re.IGNORECASE)],
+    "Redis": [re.compile(r"redis", re.IGNORECASE), re.compile(r"\+PONG", re.IGNORECASE)],
+    "OpenSSH": [re.compile(r"OpenSSH", re.IGNORECASE)],
+    "Apache": [re.compile(r"Apache", re.IGNORECASE)],
+    "Nginx": [re.compile(r"nginx", re.IGNORECASE)],
+    "IIS": [re.compile(r"Microsoft-IIS", re.IGNORECASE)],
+    "nginx": [re.compile(r"nginx", re.IGNORECASE)],
 }
 
 
@@ -49,25 +49,25 @@ def parse_banner(banner: str, service_hint: str = "") -> dict[str, str]:
         info["product"] = m.group(2).strip() or "OpenSSH"
         return info
 
-    m = re.search(r"(Apache)/([\d.]+)", b, re.I)
+    m = re.search(r"(Apache)/([\d.]+)", b, re.IGNORECASE)
     if m:
         info["product"] = "Apache"
         info["version"] = m.group(2)
         return info
 
-    m = re.search(r"(nginx)/([\d.]+)", b, re.I)
+    m = re.search(r"(nginx)/([\d.]+)", b, re.IGNORECASE)
     if m:
         info["product"] = "nginx"
         info["version"] = m.group(2)
         return info
 
-    m = re.search(r"Microsoft-IIS/([\d.]+)", b, re.I)
+    m = re.search(r"Microsoft-IIS/([\d.]+)", b, re.IGNORECASE)
     if m:
         info["product"] = "IIS"
         info["version"] = m.group(2)
         return info
 
-    m = re.search(r"Server:\s*(.*)", b, re.I)
+    m = re.search(r"Server:\s*(.*)", b, re.IGNORECASE)
     if m:
         info["server"] = m.group(1).strip()
 
@@ -132,7 +132,7 @@ class ServiceDetector(BaseScanner):
                         "banner": banner[:200],
                         **parsed,
                     }
-                except (asyncio.TimeoutError, ConnectionRefusedError, ConnectionError, OSError):
+                except (TimeoutError, ConnectionRefusedError, ConnectionError, OSError):
                     return None
 
         tasks = [_grab(p) for p in ports]

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 from src.scanners.base import ScanResult
 
@@ -92,7 +91,7 @@ class ReportGenerator:
 
     def _generate_html(self, results: list[ScanResult]) -> str:
         target = results[0].target if results else "unknown"
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
         total_findings = sum(len(r.findings) for r in results)
         counts = self._count_severities(results)
 
@@ -137,7 +136,7 @@ class ReportGenerator:
         data = {
             "vulnforge_report": {
                 "version": "1.0.0",
-                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "generated_at": datetime.now(UTC).isoformat(),
                 "results": [r.to_dict() for r in results],
             }
         }
